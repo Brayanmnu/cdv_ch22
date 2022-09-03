@@ -6,18 +6,18 @@ import json
 
 
 router = APIRouter(
-    prefix="/tipo-documento",
-    tags=["tipo-documento"]
+    prefix="/ciudad",
+    tags=["ciudad"]
     )
 
 host, port, db, usr, pwd = get_values_database_sql('database_local')
 
 @router.get("/")
-async def get_all_tipo_documento():
+async def get_all_ciudad():
     dict_json = []
     try:
         conn = utils.conexion_mysql(host,db,usr,pwd)
-        query = "SELECT JSON_ARRAYAGG(JSON_OBJECT('id', id_tipo_documento, 'descripcion', descripcion)) from TIPO_DOCUMENTO"
+        query = "SELECT JSON_ARRAYAGG(JSON_OBJECT('id', id_ciudad, 'descripcion', descripcion)) from ciudad"
         cursor = conn.cursor()
         cursor.execute(query)
         print('Query ejecutado')
