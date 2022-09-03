@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.cruds import tipo_documento_crud, iglesia_crud, ciudad_crud
+from app.modules import registro_maker
 
 app = FastAPI()
 
@@ -13,16 +14,15 @@ app.include_router(iglesia_crud.router)
 app.include_router(ciudad_crud.router)
 
 #MODULES
+app.include_router(registro_maker.router)
 
 
 '''
 SECCION DONDE SE AGREGAN LOS CORS
 '''
 origins = [
-    "https://coquitofrontadmin.herokuapp.com",
     "http://localhost",
     "http://localhost:3000",
-    "https://adminv2.ferrerepuestoscoquito.com"
 ]
 
 app.add_middleware(

@@ -1,5 +1,4 @@
 from fastapi import APIRouter
-from pydantic import BaseModel
 import app.utils as utils
 from configs import get_values_database_sql
 import json
