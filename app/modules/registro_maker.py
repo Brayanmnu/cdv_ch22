@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 import app.utils as utils
-from configs import get_values_database_sql
+from configs import get_values_database_sql,get_values_database_nosql_collection_qr, get_values_hosting
 import json
 from pydantic import BaseModel
 import uuid
@@ -16,6 +16,10 @@ router = APIRouter(
     )
 
 host, port, db, usr, pwd = get_values_database_sql('database_local')
+
+uri_qr, database_no_sql_qr, collection_db_qr = get_values_database_nosql_collection_qr('mongodb_concepto')
+
+hosting = get_values_hosting()
 
 class Maker (BaseModel):
     id_tipo_doc: int
@@ -75,20 +79,43 @@ async def insert_maker(maker: Maker):
         conn.commit()
         print('Nuevo maker registrado')
 
-        insert_evento_ciudad = f"insert into maker_evento_ciudad(id,id_evento,id_makerv2,id_ciudad) values(UUID_TO_BIN(UUID()),%s,UUID_TO_BIN(\'{id_maker}\'),%s)"
-        cursor.execute(insert_evento_ciudad,(maker.id_evento,id_ciudad,))
+        id_evento_maker = str(uuid.uuid4())
+        insert_evento_ciudad = f"insert into maker_evento(id,id_evento,id_makerv2) values(UUID_TO_BIN(\'{id_evento_maker}\'),%s,UUID_TO_BIN(\'{id_maker}\'))"
+        cursor.execute(insert_evento_ciudad,(maker.id_evento,))
+        conn.commit()
+        print('Maker registrado a evento')
+
+        insert_evento_ciudad = f"insert into maker_evento_ciudad(id,id_evento_maker,id_ciudad) values(UUID_TO_BIN(UUID()),UUID_TO_BIN(\'{id_evento_maker}\'),%s)"
+        cursor.execute(insert_evento_ciudad,(id_ciudad,))
         conn.commit()
         print('Maker registrado a evento con su ciudad')
 
-        insert_evento_iglesia = f"insert into maker_evento_iglesia(id,id_evento,id_makerv2,id_iglesia) values(UUID_TO_BIN(UUID()),%s,UUID_TO_BIN(\'{id_maker}\'),%s)"
-        cursor.execute(insert_evento_iglesia,(maker.id_evento,id_iglesia,))
+        insert_evento_iglesia = f"insert into maker_evento_iglesia(id,id_evento_maker,id_iglesia) values(UUID_TO_BIN(UUID()),UUID_TO_BIN(\'{id_evento_maker}\'),%s)"
+        cursor.execute(insert_evento_iglesia,(id_iglesia,))
         conn.commit()
         print('Maker registrado a evento con su iglesia')
 
-        #Generar codigoQR
-        
         nombres_apellidos = maker.nombre +" " +maker.apellido
-        dict_json = {"status":"ok", "codigo_qr":"XXXXXX/BASE64", "nombres_apellidos" : nombres_apellidos}
+
+        #Generar codigoQR
+        url_qr = hosting
+        url_qr = str(url_qr)+ id_evento_maker
+        img = qrcode.make(url_qr)
+        print('qr generado correctamente')
+        img.save("qr_auxiliar.jpg")
+        with open("qr_auxiliar.jpg", "rb") as img_file:
+            b64_string = base64.b64encode(img_file.read())
+            b64_string = str(b64_string)
+        remove("qr_auxiliar.jpg")
+        client_mongo = MongoClient(uri_qr)
+        db_mongo = client_mongo[database_no_sql_qr]
+        collection_qr = db_mongo[collection_db_qr]
+        mydict = { "id_evento_maker": id_evento_maker, "b64_string": b64_string , "nombres_apellidos" : nombres_apellidos}
+        qr_result = collection_qr.insert_one(mydict)
+        print(f"Qr Guardado correctamente: {qr_result}")
+        client_mongo.close()
+
+        dict_json = {"status":"ok", "codigo_qr":b64_string[2:-1] , "nombres_apellidos" : nombres_apellidos}
     except Exception as error:
         dict_json = {"status": "error"}
         print(f'Ocurrió un error inesperado,, cause: {error.__str__}')
