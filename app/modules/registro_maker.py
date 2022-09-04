@@ -38,24 +38,25 @@ class Maker (BaseModel):
 @router.post("/")
 async def insert_maker(maker: Maker):
     try:
-        print(f'maker.iglesia: {maker.iglesia}')
         if maker.iglesia == 'Otra':
             iglesia = maker.otra_iglesia
         else:
             iglesia = maker.iglesia
-
+        
+        print(f'maker.iglesia: {maker.iglesia}')
+        
         conn = utils.conexion_mysql(host,db,usr,pwd)
         cursor = conn.cursor(buffered=True)
         
-        id_maker = str(uuid.uuid4())
-        insert_maker = f"insert into makerv2(id_makerv2,id_tipo_doc,nro_doc,nombres,apellidos,email,celular,fecha_creacion,fecha_actualizacion) values(UUID_TO_BIN(\'{id_maker}\'),%s,%s,%s,%s,%s,%s,SYSDATE(),SYSDATE())"
+        id_maker = str(uuid.uuid4().hex)
+        insert_maker = f"insert into makerv2(id_makerv2,id_tipo_doc,nro_doc,nombres,apellidos,email,celular,fecha_creacion,fecha_actualizacion) values(UNHEX(\'{id_maker}\'),%s,%s,%s,%s,%s,%s,SYSDATE(),SYSDATE())"
         cursor.execute(insert_maker,(maker.id_tipo_doc, maker.nro_doc, maker.nombre, maker.apellido, maker.email, maker.celular))
         conn.commit()
         print('Nuevo maker registrado')
 
         #Registrar a maker en evento
-        id_evento_maker = str(uuid.uuid4())
-        insert_evento_ciudad = f"insert into maker_evento(id,id_makerv2,id_evento, ciudad, iglesia) values(UUID_TO_BIN(\'{id_evento_maker}\'),UUID_TO_BIN(\'{id_maker}\'),%s,%s,%s)"
+        id_evento_maker = str(uuid.uuid4().hex)
+        insert_evento_ciudad = f"insert into maker_evento(id,id_makerv2,id_evento, ciudad, iglesia) values(UNHEX(\'{id_evento_maker}\'),UNHEX(\'{id_maker}\'),%s,%s,%s)"
         cursor.execute(insert_evento_ciudad,(maker.id_evento,maker.ciudad,iglesia))
         conn.commit()
         print('Maker registrado a evento')
