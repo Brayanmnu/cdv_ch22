@@ -9,7 +9,7 @@ router = APIRouter(
     tags=["ciudad"]
     )
 
-host, port, db, usr, pwd = get_values_database_sql('database_local')
+host, port, db, usr, pwd = get_values_database_sql('database_remote')
 
 @router.get("/")
 async def get_all_ciudad():
