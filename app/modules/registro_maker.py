@@ -26,11 +26,10 @@ class Maker (BaseModel):
     nro_doc: str
     nombre: str
     apellido: str
-    id_ciudad: int
-    desc_new_ciudad: str
+    ciudad: str
     edad: int
-    id_iglesia: int
-    desc_new_iglesia: str
+    iglesia: str
+    otra_iglesia: str
     celular: str
     email: str
     id_evento: int
@@ -39,61 +38,27 @@ class Maker (BaseModel):
 @router.post("/")
 async def insert_maker(maker: Maker):
     try:
+        print(f'maker.iglesia: {maker.iglesia}')
+        if maker.iglesia == 'Otra':
+            iglesia = maker.otra_iglesia
+        else:
+            iglesia = maker.iglesia
+
         conn = utils.conexion_mysql(host,db,usr,pwd)
         cursor = conn.cursor(buffered=True)
-        #Validar si es una nueva ciudad
-        id_ciudad = maker.id_ciudad
-        if id_ciudad == 0:
-            insert_ciudad = "insert into ciudad(descripcion) values(%s)"
-            cursor.execute(insert_ciudad,(maker.desc_new_ciudad,))
-            conn.commit()
-            print('Nueva ciudad registrada')
-
-            select_id_ciudad = "select id_ciudad from ciudad where descripcion = %s"
-            cursor.execute(select_id_ciudad,(maker.desc_new_ciudad,))
-            print('Query ejecutado select_id_ciudad')
-
-            id_ciudad = cursor.fetchone()
-            id_ciudad = id_ciudad[0]
-            print(f'id_ciudad: {id_ciudad}')
-
-        #Validar si es una iglesia ciudad
-        id_iglesia = maker.id_iglesia
-        if id_iglesia == 0:
-            insert_iglesia = "insert into iglesia(nombre) values(%s)"
-            cursor.execute(insert_iglesia,(maker.desc_new_iglesia,))
-            conn.commit()
-            print('Nueva iglesia registrada')
-
-            select_id_iglesia = "select id_iglesia from iglesia where nombre = %s"
-            cursor.execute(select_id_iglesia,(maker.desc_new_iglesia,))
-            print('Query ejecutado select_id_ciudad')
-
-            id_iglesia = cursor.fetchone()
-            id_iglesia = id_iglesia[0]
-            print(f'id_iglesia: {id_iglesia}')
-
+        
         id_maker = str(uuid.uuid4())
         insert_maker = f"insert into makerv2(id_makerv2,id_tipo_doc,nro_doc,nombres,apellidos,email,celular,fecha_creacion,fecha_actualizacion) values(UUID_TO_BIN(\'{id_maker}\'),%s,%s,%s,%s,%s,%s,SYSDATE(),SYSDATE())"
         cursor.execute(insert_maker,(maker.id_tipo_doc, maker.nro_doc, maker.nombre, maker.apellido, maker.email, maker.celular))
         conn.commit()
         print('Nuevo maker registrado')
 
+        #Registrar a maker en evento
         id_evento_maker = str(uuid.uuid4())
-        insert_evento_ciudad = f"insert into maker_evento(id,id_evento,id_makerv2) values(UUID_TO_BIN(\'{id_evento_maker}\'),%s,UUID_TO_BIN(\'{id_maker}\'))"
-        cursor.execute(insert_evento_ciudad,(maker.id_evento,))
+        insert_evento_ciudad = f"insert into maker_evento(id,id_makerv2,id_evento, ciudad, iglesia) values(UUID_TO_BIN(\'{id_evento_maker}\'),UUID_TO_BIN(\'{id_maker}\'),%s,%s,%s)"
+        cursor.execute(insert_evento_ciudad,(maker.id_evento,maker.ciudad,iglesia))
         conn.commit()
         print('Maker registrado a evento')
-
-        insert_evento_ciudad = f"insert into maker_evento_ciudad(id,id_evento_maker,id_ciudad) values(UUID_TO_BIN(UUID()),UUID_TO_BIN(\'{id_evento_maker}\'),%s)"
-        cursor.execute(insert_evento_ciudad,(id_ciudad,))
-        conn.commit()
-        print('Maker registrado a evento con su ciudad')
-
-        insert_evento_iglesia = f"insert into maker_evento_iglesia(id,id_evento_maker,id_iglesia) values(UUID_TO_BIN(UUID()),UUID_TO_BIN(\'{id_evento_maker}\'),%s)"
-        cursor.execute(insert_evento_iglesia,(id_iglesia,))
-        conn.commit()
-        print('Maker registrado a evento con su iglesia')
 
         nombres_apellidos = maker.nombre +" " +maker.apellido
 
