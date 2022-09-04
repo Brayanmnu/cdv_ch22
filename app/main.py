@@ -10,8 +10,8 @@ SECCION DONDE SE LLAMAN A LAS APIS DESARROLLADAS
 '''
 # CRUDS
 app.include_router(tipo_documento_crud.router)
-app.include_router(iglesia_crud.router)
-app.include_router(ciudad_crud.router)
+#app.include_router(iglesia_crud.router)
+#app.include_router(ciudad_crud.router)
 
 #MODULES
 app.include_router(registro_maker.router)

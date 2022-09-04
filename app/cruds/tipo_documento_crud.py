@@ -16,15 +16,19 @@ async def get_all_tipo_documento():
     dict_json = []
     try:
         conn = utils.conexion_mysql(host,db,usr,pwd)
-        query = "SELECT JSON_ARRAYAGG(JSON_OBJECT('id', id_tipo_documento, 'descripcion', descripcion)) from TIPO_DOCUMENTO"
+        query = "SELECT  id_tipo_documento , descripcion from tipo_documento"
         cursor = conn.cursor()
         cursor.execute(query)
         print('Query ejecutado')
         records = cursor.fetchall()
         for row in records:
-            dict_json = json.loads(row[0])
+            json_documento = {
+                "id":row[0],
+                "descripcion":row[1]
+            }
+            dict_json.append(json_documento)
     except Exception as error:
-        print('Ocurrió un error inesperado')
+        print(f'Ocurrió un error inesperado{error.__str__}')
     finally:
         if conn:
             cursor.close()
