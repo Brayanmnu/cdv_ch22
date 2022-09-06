@@ -25,7 +25,7 @@ origins = [
     "http://localhost:3000",
     "https://congresohacedores.org",
     "https://prueba.congresohacedores.org",
-    "https://registro.congresohacedores.org"
+    "https://registro.congresohacedores.org",
     "https://asistencia.congresohacedores.org"
 ]
 
