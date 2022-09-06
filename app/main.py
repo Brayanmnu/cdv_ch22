@@ -23,7 +23,10 @@ SECCION DONDE SE AGREGAN LOS CORS
 origins = [
     "http://localhost",
     "http://localhost:3000",
-    "https://congresohacedores.org"
+    "https://congresohacedores.org",
+    "https://prueba.congresohacedores.org",
+    "https://registro.congresohacedores.org"
+    "https://asistencia.congresohacedores.org"
 ]
 
 app.add_middleware(
