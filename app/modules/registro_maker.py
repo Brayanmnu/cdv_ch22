@@ -8,6 +8,7 @@ import qrcode
 import base64
 from os import remove
 from pymongo import MongoClient
+from typing import Optional
 
 
 router = APIRouter(
@@ -26,11 +27,11 @@ class Maker (BaseModel):
     nro_doc: str
     nombre: str
     apellido: str
-    ciudad: str
+    ciudad: Optional[str]
     edad: int
     iglesia: str
     celular: str
-    email: str
+    email: Optional[str]
     id_evento: int
 
 
