@@ -29,7 +29,6 @@ class Maker (BaseModel):
     ciudad: str
     edad: int
     iglesia: str
-    otra_iglesia: str
     celular: str
     email: str
     id_evento: int
@@ -38,10 +37,6 @@ class Maker (BaseModel):
 @router.post("/")
 async def insert_maker(maker: Maker):
     try:
-        if maker.iglesia == 'Otra':
-            iglesia = maker.otra_iglesia
-        else:
-            iglesia = maker.iglesia
         
         print(f'maker.iglesia: {maker.iglesia}')
         
@@ -57,7 +52,7 @@ async def insert_maker(maker: Maker):
         #Registrar a maker en evento
         id_evento_maker = str(uuid.uuid4().hex)
         insert_evento_ciudad = f"insert into maker_evento(id,id_makerv2,id_evento, ciudad, iglesia) values(UNHEX(\'{id_evento_maker}\'),UNHEX(\'{id_maker}\'),%s,%s,%s)"
-        cursor.execute(insert_evento_ciudad,(maker.id_evento,maker.ciudad,iglesia))
+        cursor.execute(insert_evento_ciudad,(maker.id_evento,maker.ciudad,maker.iglesia))
         conn.commit()
         print('Maker registrado a evento')
 
