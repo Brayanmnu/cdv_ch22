@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.cruds import tipo_documento_crud, iglesia_crud, ciudad_crud
+from app.cruds import tipo_documento_crud, evento_crud
 from app.modules import registro_maker
 
 app = FastAPI()
@@ -10,7 +10,7 @@ SECCION DONDE SE LLAMAN A LAS APIS DESARROLLADAS
 '''
 # CRUDS
 app.include_router(tipo_documento_crud.router)
-#app.include_router(iglesia_crud.router)
+app.include_router(evento_crud.router)
 #app.include_router(ciudad_crud.router)
 
 #MODULES
