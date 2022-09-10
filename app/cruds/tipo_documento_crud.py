@@ -2,6 +2,7 @@ from fastapi import APIRouter
 import app.utils as utils
 from configs import get_values_database_sql
 import json
+import requests
 
 
 router = APIRouter(
@@ -35,4 +36,3 @@ async def get_all_tipo_documento():
             conn.close()
             print('conexion terminada')
     return dict_json
-
